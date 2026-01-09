@@ -1,0 +1,29 @@
+# Конфигурация цен на нотариальный перевод
+# Все цены в VND (вьетнамских донгах)
+
+pricing:
+  # Минимальная цена за заказ
+  minOrderPrice: 300000
+
+  # Цена за один символ текста
+  pricePerCharacter: 600
+
+  # Считать ли пробелы как символы
+  countSpaces: false
+
+# Настройки OCR
+ocr:
+  # Языки для распознавания (документы на русском/английском)
+  languages:
+    - rus
+    - eng
+
+# Ограничения
+limits:
+  maxFileSizeMB: 50
+  maxFilesAtOnce: 10
+
+# UI настройки
+ui:
+  currency: "₫"
+  locale: "ru-RU"
