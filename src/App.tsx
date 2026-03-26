@@ -238,6 +238,10 @@ function App() {
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block w-full sm:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors mb-4"
+              onClick={(e) => {
+                e.preventDefault();
+                (window as any).gtag_report_conversion?.('https://t.me/Vietnam_Translator');
+              }}
             >
               Оформить заказ
             </a>

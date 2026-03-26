@@ -6,6 +6,26 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <title>Калькулятор стоимости нотариального перевода от Ньунг</title>
     <meta name="description" content="Расчёт стоимости нотариального перевода документов" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18019887509"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'AW-18019887509');
+
+      function gtag_report_conversion(url) {
+        gtag('event', 'conversion', {
+          'send_to': 'AW-18019887509/svj_CMK3lJAcEJXTxpBD',
+          'value': 1.0,
+          'currency': 'VND',
+          'event_callback': function() {
+            if (typeof(url) != 'undefined') { window.open(url, '_blank'); }
+          }
+        });
+        return false;
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
