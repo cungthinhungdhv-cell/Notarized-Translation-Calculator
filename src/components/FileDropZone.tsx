@@ -1,5 +1,5 @@
 import { useCallback, useState, useEffect } from 'react';
-import { Upload, FileText, Image, Clipboard } from 'lucide-react';
+import { Upload, FileText, FileType2, Image, Clipboard } from 'lucide-react';
 
 interface FileDropZoneProps {
   onFilesSelected: (files: File[]) => void;
@@ -9,8 +9,8 @@ interface FileDropZoneProps {
   disabled?: boolean;
 }
 
-const ACCEPTED_EXTENSIONS = ['.pdf', '.jpg', '.jpeg', '.png', '.webp'];
-const ACCEPTED_MIME_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+const ACCEPTED_EXTENSIONS = ['.pdf', '.docx', '.jpg', '.jpeg', '.png', '.webp'];
+const ACCEPTED_MIME_TYPES = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png', 'image/webp'];
 
 export function FileDropZone({
   onFilesSelected,
@@ -204,7 +204,7 @@ export function FileDropZone({
                 : 'Перетащите, выберите или вставьте (Ctrl+V)'}
             </p>
             <p className="mt-1 text-sm text-gray-500">
-              PDF или изображения (JPG, PNG, WebP)
+              PDF, DOCX или изображения (JPG, PNG, WebP)
             </p>
           </div>
 
@@ -212,6 +212,10 @@ export function FileDropZone({
             <div className="flex items-center gap-1 text-xs text-gray-400">
               <FileText className="w-4 h-4" />
               <span>PDF</span>
+            </div>
+            <div className="flex items-center gap-1 text-xs text-gray-400">
+              <FileType2 className="w-4 h-4" />
+              <span>DOCX</span>
             </div>
             <div className="flex items-center gap-1 text-xs text-gray-400">
               <Image className="w-4 h-4" />

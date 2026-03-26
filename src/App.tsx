@@ -5,6 +5,7 @@ import { DocumentResult } from './components/DocumentResult';
 import { PriceSummary } from './components/PriceSummary';
 import { loadConfig } from './services/config.service';
 import { extractTextFromPDF } from './services/pdf.service';
+import { extractTextFromDocx } from './services/docx.service';
 import { initOCR, recognizeImage, recognizeImageFile, terminateOCR } from './services/ocr.service';
 import { calculateDocumentPrice } from './services/pricing.service';
 import type {
@@ -33,11 +34,23 @@ function App() {
 
       const fileId = crypto.randomUUID();
       const isImage = file.type.startsWith('image/');
+      const isDocx = file.name.endsWith('.docx') || file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 
       try {
         let pages: PageResult[] = [];
 
-        if (isImage) {
+        if (isDocx) {
+          setProgress({
+            fileId,
+            fileName: file.name,
+            currentPage: 1,
+            totalPages: 1,
+            stage: 'extracting',
+            ocrProgress: 0,
+          });
+
+          pages = await extractTextFromDocx(file);
+        } else if (isImage) {
           setProgress({
             fileId,
             fileName: file.name,
@@ -188,7 +201,7 @@ function App() {
         <div className="space-y-6">
           <FileDropZone
             onFilesSelected={handleFilesSelected}
-            acceptedTypes={['.pdf', '.jpg', '.jpeg', '.png', '.webp']}
+            acceptedTypes={['.pdf', '.docx', '.jpg', '.jpeg', '.png', '.webp']}
             maxFiles={config.limits.maxFilesAtOnce}
             maxSizeMB={config.limits.maxFileSizeMB}
             disabled={isProcessing}
