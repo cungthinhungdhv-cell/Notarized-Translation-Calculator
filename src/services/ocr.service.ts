@@ -1,4 +1,5 @@
 import Tesseract from 'tesseract.js';
+import { preprocessImageData, preprocessCanvasFile } from './image-preprocessing.service';
 
 export interface OCRResult {
   text: string;
@@ -44,17 +45,21 @@ export async function recognizeImage(
 
   progressCallback = onProgress || null;
 
-  let canvas: HTMLCanvasElement | undefined;
+  let input: HTMLCanvasElement | HTMLImageElement | string;
 
   if (imageData instanceof ImageData) {
-    canvas = document.createElement('canvas');
-    canvas.width = imageData.width;
-    canvas.height = imageData.height;
+    const processed = preprocessImageData(imageData);
+    const canvas = document.createElement('canvas');
+    canvas.width = processed.width;
+    canvas.height = processed.height;
     const ctx = canvas.getContext('2d')!;
-    ctx.putImageData(imageData, 0, 0);
+    ctx.putImageData(processed, 0, 0);
+    input = canvas;
+  } else {
+    input = imageData;
   }
 
-  const result = await worker!.recognize(canvas || imageData);
+  const result = await worker!.recognize(input);
 
   progressCallback = null;
   const text = result.data.text;
@@ -76,7 +81,8 @@ export async function recognizeImageFile(
 
   progressCallback = onProgress || null;
 
-  const result = await worker!.recognize(file);
+  const preprocessed = await preprocessCanvasFile(file);
+  const result = await worker!.recognize(preprocessed);
 
   progressCallback = null;
   const text = result.data.text;

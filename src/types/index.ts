@@ -41,12 +41,16 @@ export interface PageResult {
   characterCount: number;
   hasNativeText: boolean;
   extractionMethod: 'native' | 'ocr';
+  confidence?: number;
 }
 
 export interface PageBreakdown {
   pageNumber: number;
   characterCount: number;
   price: number;
+  text: string;
+  extractionMethod: 'native' | 'ocr';
+  confidence?: number;
 }
 
 export interface DocumentResult {

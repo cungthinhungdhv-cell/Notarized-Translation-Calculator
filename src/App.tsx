@@ -74,6 +74,7 @@ function App() {
               characterCount: ocrResult.characterCount,
               hasNativeText: false,
               extractionMethod: 'ocr',
+              confidence: ocrResult.confidence,
             },
           ];
         } else {
@@ -126,6 +127,7 @@ function App() {
                   ...pages[pageIndex],
                   text: ocrResult.text,
                   characterCount: ocrResult.characterCount,
+                  confidence: ocrResult.confidence,
                 };
               }
             }

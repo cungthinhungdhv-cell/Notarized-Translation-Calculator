@@ -21,6 +21,9 @@ export function calculateDocumentPrice(
       pageNumber: page.pageNumber,
       characterCount: charCount,
       price,
+      text: page.text,
+      extractionMethod: page.extractionMethod,
+      confidence: page.confidence,
     };
   });
 
