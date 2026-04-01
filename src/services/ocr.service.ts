@@ -1,5 +1,4 @@
-import Tesseract from 'tesseract.js';
-import { preprocessImageData, preprocessCanvasFile } from './image-preprocessing.service';
+const OCR_API_URL = import.meta.env.VITE_OCR_API_URL || 'http://localhost:8899';
 
 export interface OCRResult {
   text: string;
@@ -7,97 +6,85 @@ export interface OCRResult {
   characterCount: number;
 }
 
-let worker: Tesseract.Worker | null = null;
-let currentLanguages: string[] = [];
-let progressCallback: ((progress: number) => void) | null = null;
-
-export async function initOCR(languages: string[] = ['rus', 'eng']): Promise<void> {
-  if (worker && arraysEqual(currentLanguages, languages)) {
-    return;
-  }
-
-  if (worker) {
-    await worker.terminate();
-  }
-
-  const langString = languages.join('+');
-  worker = await Tesseract.createWorker(langString, 1, {
-    logger: (m: Tesseract.LoggerMessage) => {
-      if (m.status === 'recognizing text' && progressCallback) {
-        progressCallback(m.progress * 100);
-      }
-    },
-  });
-  currentLanguages = [...languages];
-}
-
-function arraysEqual(a: string[], b: string[]): boolean {
-  return a.length === b.length && a.every((v, i) => v === b[i]);
+export async function initOCR(): Promise<void> {
+  // PaddleOCR инициализируется на бэкенде, здесь ничего не нужно
 }
 
 export async function recognizeImage(
   imageData: ImageData | HTMLImageElement | string,
   onProgress?: (progress: number) => void
 ): Promise<OCRResult> {
-  if (!worker) {
-    await initOCR();
-  }
+  onProgress?.(10);
 
-  progressCallback = onProgress || null;
-
-  let input: HTMLCanvasElement | HTMLImageElement | string;
+  let blob: Blob;
 
   if (imageData instanceof ImageData) {
-    const processed = preprocessImageData(imageData);
     const canvas = document.createElement('canvas');
-    canvas.width = processed.width;
-    canvas.height = processed.height;
+    canvas.width = imageData.width;
+    canvas.height = imageData.height;
     const ctx = canvas.getContext('2d')!;
-    ctx.putImageData(processed, 0, 0);
-    input = canvas;
+    ctx.putImageData(imageData, 0, 0);
+    blob = await new Promise<Blob>((resolve) =>
+      canvas.toBlob((b) => resolve(b!), 'image/png')
+    );
+  } else if (imageData instanceof HTMLImageElement) {
+    const canvas = document.createElement('canvas');
+    canvas.width = imageData.naturalWidth;
+    canvas.height = imageData.naturalHeight;
+    const ctx = canvas.getContext('2d')!;
+    ctx.drawImage(imageData, 0, 0);
+    blob = await new Promise<Blob>((resolve) =>
+      canvas.toBlob((b) => resolve(b!), 'image/png')
+    );
   } else {
-    input = imageData;
+    const res = await fetch(imageData);
+    blob = await res.blob();
   }
 
-  const result = await worker!.recognize(input);
+  onProgress?.(30);
 
-  progressCallback = null;
-  const text = result.data.text;
+  const formData = new FormData();
+  formData.append('file', blob, 'page.png');
 
-  return {
-    text,
-    confidence: result.data.confidence,
-    characterCount: text.replace(/\s/g, '').length,
-  };
+  const response = await fetch(`${OCR_API_URL}/api/ocr`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error(`OCR API error: ${response.status}`);
+  }
+
+  onProgress?.(100);
+
+  return await response.json();
 }
 
 export async function recognizeImageFile(
   file: File,
   onProgress?: (progress: number) => void
 ): Promise<OCRResult> {
-  if (!worker) {
-    await initOCR();
+  onProgress?.(10);
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  onProgress?.(30);
+
+  const response = await fetch(`${OCR_API_URL}/api/ocr`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error(`OCR API error: ${response.status}`);
   }
 
-  progressCallback = onProgress || null;
+  onProgress?.(100);
 
-  const preprocessed = await preprocessCanvasFile(file);
-  const result = await worker!.recognize(preprocessed);
-
-  progressCallback = null;
-  const text = result.data.text;
-
-  return {
-    text,
-    confidence: result.data.confidence,
-    characterCount: text.replace(/\s/g, '').length,
-  };
+  return await response.json();
 }
 
 export async function terminateOCR(): Promise<void> {
-  if (worker) {
-    await worker.terminate();
-    worker = null;
-    currentLanguages = [];
-  }
+  // Ничего — бэкенд управляет жизненным циклом PaddleOCR
 }

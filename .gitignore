@@ -23,5 +23,9 @@ dist-ssr
 *.sln
 *.sw?
 
+# Python
+backend/venv/
+ocr-test/
+
 # Secrets
 Токен пуша.txt

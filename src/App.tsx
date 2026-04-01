@@ -60,7 +60,7 @@ function App() {
             ocrProgress: 0,
           });
 
-          await initOCR(config.ocr.languages);
+          await initOCR();
           const ocrResult = await recognizeImageFile(file, (p) => {
             setProgress((prev) =>
               prev ? { ...prev, ocrProgress: p } : null
@@ -100,7 +100,7 @@ function App() {
               prev ? { ...prev, stage: 'ocr', ocrProgress: 0 } : null
             );
 
-            await initOCR(config.ocr.languages);
+            await initOCR();
 
             for (const pageToOCR of pdfResult.pagesNeedingOCR) {
               setProgress((prev) =>
