@@ -1,4 +1,4 @@
-const OCR_API_URL = import.meta.env.VITE_OCR_API_URL || 'http://localhost:8899';
+const OCR_API_URL = import.meta.env.VITE_OCR_API_URL || 'https://notary-ocr.itripster.com';
 
 export interface OCRResult {
   text: string;
