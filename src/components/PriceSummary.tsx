@@ -130,7 +130,7 @@ export function PriceSummary({ results, config, onReset }: PriceSummaryProps) {
       <div className="bg-white rounded-lg p-4 mb-4 divide-y divide-gray-100">
         <p className="text-sm font-medium text-gray-600 pb-1">Нотариальные копии</p>
         <CounterRow
-          label="Доп. копии перевода"
+          label="Доп. нотариальные копии перевода"
           hint="1-я копия уже в цене перевода"
           unitPrice={config.pricing.notaryCopyTranslation}
           count={translationCopies}
@@ -138,7 +138,7 @@ export function PriceSummary({ results, config, onReset }: PriceSummaryProps) {
           config={config}
         />
         <CounterRow
-          label="Копии паспорта"
+          label="Нотариальные копии паспорта"
           unitPrice={config.pricing.notaryCopyPassport}
           count={passportCopies}
           onChange={setPassportCopies}
@@ -155,13 +155,13 @@ export function PriceSummary({ results, config, onReset }: PriceSummaryProps) {
             </div>
             {translationCopiesPrice > 0 && (
               <div className="flex justify-between text-gray-600">
-                <span>Доп. копии перевода ({translationCopies})</span>
+                <span>Доп. нотар. копии перевода ({translationCopies})</span>
                 <span>{formatPrice(translationCopiesPrice, config)}</span>
               </div>
             )}
             {passportCopiesPrice > 0 && (
               <div className="flex justify-between text-gray-600">
-                <span>Копии паспорта ({passportCopies})</span>
+                <span>Нотар. копии паспорта ({passportCopies})</span>
                 <span>{formatPrice(passportCopiesPrice, config)}</span>
               </div>
             )}
@@ -251,10 +251,10 @@ function generateSummaryText(p: SummaryTextParams): string {
     lines.push(`   (по символам ${formatPrice(p.priceByCharacters, config)}, мин. заказ ${formatPrice(config.pricing.minOrderPrice, config)})`);
   }
   if (p.translationCopiesPrice > 0) {
-    lines.push(`Доп. копии перевода (${p.translationCopies}): ${formatPrice(p.translationCopiesPrice, config)}`);
+    lines.push(`Доп. нотар. копии перевода (${p.translationCopies}): ${formatPrice(p.translationCopiesPrice, config)}`);
   }
   if (p.passportCopiesPrice > 0) {
-    lines.push(`Копии паспорта (${p.passportCopies}): ${formatPrice(p.passportCopiesPrice, config)}`);
+    lines.push(`Нотар. копии паспорта (${p.passportCopies}): ${formatPrice(p.passportCopiesPrice, config)}`);
   }
   lines.push('');
   lines.push(`ИТОГО: ${formatPrice(p.finalPrice, config)}`);
