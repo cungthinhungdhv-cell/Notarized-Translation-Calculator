@@ -30,8 +30,15 @@ export async function loadConfig(): Promise<AppConfig> {
       return DEFAULT_CONFIG;
     }
     const yamlText = await response.text();
-    const config = yaml.load(yamlText) as AppConfig;
-    return { ...DEFAULT_CONFIG, ...config };
+    const config = (yaml.load(yamlText) ?? {}) as Partial<AppConfig>;
+    // Глубокий мёрж: yaml может не содержать какие-то поля (напр. цены копий) —
+    // тогда берём значения из DEFAULT_CONFIG, а не теряем их.
+    return {
+      pricing: { ...DEFAULT_CONFIG.pricing, ...config.pricing },
+      ocr: { ...DEFAULT_CONFIG.ocr, ...config.ocr },
+      limits: { ...DEFAULT_CONFIG.limits, ...config.limits },
+      ui: { ...DEFAULT_CONFIG.ui, ...config.ui },
+    };
   } catch (error) {
     console.warn('Error loading config, using defaults:', error);
     return DEFAULT_CONFIG;
