@@ -16,6 +16,8 @@ interface CounterRowProps {
   unitSuffix?: string;
   multiplier?: number;
   count: number;
+  minCount?: number;
+  freeCount?: number;
   onChange: (next: number) => void;
   config: AppConfig;
 }
@@ -27,10 +29,14 @@ function CounterRow({
   unitSuffix = 'шт',
   multiplier = 1,
   count,
+  minCount = 0,
+  freeCount = 0,
   onChange,
   config,
 }: CounterRowProps) {
-  const lineTotal = unitPrice * multiplier * count;
+  // Бесплатные (включённые) копии не тарифицируются
+  const chargeableCount = Math.max(0, count - freeCount);
+  const lineTotal = unitPrice * multiplier * chargeableCount;
   return (
     <div className="flex items-center justify-between gap-3 py-2">
       <div className="min-w-0">
@@ -41,7 +47,7 @@ function CounterRow({
         </p>
       </div>
       <div className="flex items-center gap-3 shrink-0">
-        {count > 0 && (
+        {lineTotal > 0 && (
           <span className="text-sm font-medium text-gray-700 w-20 text-right tabular-nums">
             {formatPrice(lineTotal, config)}
           </span>
@@ -49,8 +55,8 @@ function CounterRow({
         <div className="flex items-center gap-1">
           <button
             type="button"
-            onClick={() => onChange(Math.max(0, count - 1))}
-            disabled={count === 0}
+            onClick={() => onChange(Math.max(minCount, count - 1))}
+            disabled={count <= minCount}
             className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
             aria-label="Уменьшить"
           >
@@ -73,13 +79,14 @@ function CounterRow({
 
 export function PriceSummary({ results, config, onReset }: PriceSummaryProps) {
   const [copied, setCopied] = useState(false);
-  const [translationCopies, setTranslationCopies] = useState(0);
+  // 1 копия перевода включена в стоимость по умолчанию
+  const [translationCopies, setTranslationCopies] = useState(1);
   const [passportCopies, setPassportCopies] = useState(0);
 
   // Сбрасываем доп. услуги, когда заказ очищен
   useEffect(() => {
     if (results.length === 0) {
-      setTranslationCopies(0);
+      setTranslationCopies(1);
       setPassportCopies(0);
     }
   }, [results.length]);
@@ -92,9 +99,10 @@ export function PriceSummary({ results, config, onReset }: PriceSummaryProps) {
   const isMinimumApplied = priceByCharacters < config.pricing.minOrderPrice;
 
   // Копия перевода считается за страницу (весь перевод = totalPages),
-  // копия паспорта — за штуку.
+  // 1-я копия включена в стоимость → платные = copies - 1. Копия паспорта — за штуку.
+  const extraTranslationCopies = Math.max(0, translationCopies - 1);
   const translationCopiesPrice =
-    translationCopies * totalPages * config.pricing.notaryCopyTranslation;
+    extraTranslationCopies * totalPages * config.pricing.notaryCopyTranslation;
   const passportCopiesPrice = passportCopies * config.pricing.notaryCopyPassport;
   const finalPrice = translationPrice + translationCopiesPrice + passportCopiesPrice;
 
@@ -107,7 +115,7 @@ export function PriceSummary({ results, config, onReset }: PriceSummaryProps) {
       priceByCharacters,
       translationPrice,
       isMinimumApplied,
-      translationCopies,
+      translationCopies: extraTranslationCopies,
       translationCopiesPrice,
       passportCopies,
       passportCopiesPrice,
@@ -145,12 +153,14 @@ export function PriceSummary({ results, config, onReset }: PriceSummaryProps) {
       <div className="bg-white rounded-lg p-4 mb-4 divide-y divide-gray-100">
         <p className="text-sm font-medium text-gray-600 pb-1">Нотариальные копии</p>
         <CounterRow
-          label="Доп. нотариальные копии перевода"
-          hint="1-я копия уже в цене перевода"
+          label="Нотариальные копии перевода"
+          hint="1-я копия включена в стоимость"
           unitPrice={config.pricing.notaryCopyTranslation}
           unitSuffix="страницу"
           multiplier={totalPages}
           count={translationCopies}
+          minCount={1}
+          freeCount={1}
           onChange={setTranslationCopies}
           config={config}
         />
@@ -172,7 +182,7 @@ export function PriceSummary({ results, config, onReset }: PriceSummaryProps) {
             </div>
             {translationCopiesPrice > 0 && (
               <div className="flex justify-between text-gray-600">
-                <span>Доп. нотар. копии перевода ({translationCopies} × {totalPages} стр.)</span>
+                <span>Доп. нотар. копии перевода ({extraTranslationCopies} × {totalPages} стр.)</span>
                 <span>{formatPrice(translationCopiesPrice, config)}</span>
               </div>
             )}

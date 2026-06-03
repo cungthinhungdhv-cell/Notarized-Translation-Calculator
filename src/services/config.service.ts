@@ -6,8 +6,8 @@ const DEFAULT_CONFIG: AppConfig = {
     minOrderPrice: 580000,
     pricePerCharacter: 500,
     countSpaces: false,
-    notaryCopyTranslation: 75000,
-    notaryCopyPassport: 70000,
+    notaryCopyTranslation: 50000,
+    notaryCopyPassport: 50000,
   },
   ocr: {
     languages: ['rus', 'eng'],
