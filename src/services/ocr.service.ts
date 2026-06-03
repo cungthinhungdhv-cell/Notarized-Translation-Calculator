@@ -41,8 +41,11 @@ function downscaleCanvasToBlob(source: HTMLCanvasElement): Promise<Blob> {
   return canvasToJpegBlob(dst);
 }
 
-// Отправка картинки на бэкенд через XHR — чтобы видеть реальный прогресс загрузки,
-// а во время инференса плавно подползать к 95% (бэкенд прогресс не стримит).
+// Отправка картинки на бэкенд через XHR.
+// Бэкенд прогресс не стримит, а реальная заливка через туннель может «подвисать»
+// (сервер занят синхронным OCR). Поэтому фоновый ползунок идёт с самого начала
+// запроса и асимптотически приближается к 95%, а реальный прогресс загрузки лишь
+// толкает его вперёд, если опережает. Так бар никогда не замирает.
 function postToOCR(
   blob: Blob,
   filename: string,
@@ -52,30 +55,28 @@ function postToOCR(
     const xhr = new XMLHttpRequest();
     xhr.open('POST', `${OCR_API_URL}/api/ocr`);
 
-    // 10..55% — реальная загрузка файла на сервер
-    xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable) {
-        onProgress?.(Math.min(55, 10 + (e.loaded / e.total) * 45));
+    let displayed = 5;
+    const report = (value: number) => {
+      if (value > displayed) {
+        displayed = value;
+        onProgress?.(displayed);
       }
     };
 
-    // 55..95% — сервер распознаёт (длительность неизвестна), асимптотически подползаем
-    let creep = 55;
-    let creepTimer: ReturnType<typeof setInterval> | undefined;
-    xhr.upload.onload = () => {
-      onProgress?.(55);
-      creepTimer = setInterval(() => {
-        creep = Math.min(95, creep + (95 - creep) * 0.08);
-        onProgress?.(creep);
-      }, 500);
-    };
+    // Постоянный фоновый ход — гарантирует, что бар всегда движется
+    const creepTimer = setInterval(() => {
+      report(displayed + (95 - displayed) * 0.04);
+    }, 400);
 
-    const stopCreep = () => {
-      if (creepTimer) clearInterval(creepTimer);
+    // Реальная загрузка (до 50%) — обгоняет ползунок на быстрой сети
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) {
+        report(10 + (e.loaded / e.total) * 40);
+      }
     };
 
     xhr.onload = () => {
-      stopCreep();
+      clearInterval(creepTimer);
       if (xhr.status >= 200 && xhr.status < 300) {
         try {
           const result = JSON.parse(xhr.responseText) as OCRResult;
@@ -90,7 +91,7 @@ function postToOCR(
     };
 
     xhr.onerror = () => {
-      stopCreep();
+      clearInterval(creepTimer);
       reject(new Error('OCR network error'));
     };
 
