@@ -103,7 +103,8 @@ export function PriceSummary({ results, config, onReset }: PriceSummaryProps) {
   const extraTranslationCopies = Math.max(0, translationCopies - 1);
   const translationCopiesPrice =
     extraTranslationCopies * totalPages * config.pricing.notaryCopyTranslation;
-  const passportCopiesPrice = passportCopies * config.pricing.notaryCopyPassport;
+  const passportCopiesPrice =
+    passportCopies * totalPages * config.pricing.notaryCopyPassport;
   const finalPrice = translationPrice + translationCopiesPrice + passportCopiesPrice;
 
   const handleCopy = async () => {
@@ -167,6 +168,8 @@ export function PriceSummary({ results, config, onReset }: PriceSummaryProps) {
         <CounterRow
           label="Нотариальные копии паспорта"
           unitPrice={config.pricing.notaryCopyPassport}
+          unitSuffix="страницу"
+          multiplier={totalPages}
           count={passportCopies}
           onChange={setPassportCopies}
           config={config}
@@ -188,7 +191,7 @@ export function PriceSummary({ results, config, onReset }: PriceSummaryProps) {
             )}
             {passportCopiesPrice > 0 && (
               <div className="flex justify-between text-gray-600">
-                <span>Нотар. копии паспорта ({passportCopies})</span>
+                <span>Нотар. копии паспорта ({passportCopies} × {totalPages} стр.)</span>
                 <span>{formatPrice(passportCopiesPrice, config)}</span>
               </div>
             )}
@@ -281,7 +284,7 @@ function generateSummaryText(p: SummaryTextParams): string {
     lines.push(`Доп. нотар. копии перевода (${p.translationCopies} × ${p.totalPages} стр.): ${formatPrice(p.translationCopiesPrice, config)}`);
   }
   if (p.passportCopiesPrice > 0) {
-    lines.push(`Нотар. копии паспорта (${p.passportCopies}): ${formatPrice(p.passportCopiesPrice, config)}`);
+    lines.push(`Нотар. копии паспорта (${p.passportCopies} × ${p.totalPages} стр.): ${formatPrice(p.passportCopiesPrice, config)}`);
   }
   lines.push('');
   lines.push(`ИТОГО: ${formatPrice(p.finalPrice, config)}`);
