@@ -3,7 +3,7 @@
 
 pricing:
   # Минимальная цена за заказ
-  minOrderPrice: 300000
+  minOrderPrice: 580000
 
   # Цена за один символ текста
   pricePerCharacter: 600
