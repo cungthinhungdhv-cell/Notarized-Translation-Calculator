@@ -209,7 +209,7 @@ function App() {
             disabled={isProcessing}
           />
           <p className="text-xs text-center text-gray-400 -mt-4">
-            <span className="text-red-500">*</span> Ваши документы не загружаются на сервер — вся обработка происходит в браузере
+            <span className="text-red-500">*</span> Текстовые PDF и DOCX обрабатываются прямо в браузере. Сканы и фото отправляются на наш сервер только для распознавания и нигде не сохраняются.
           </p>
 
           {progress && <ProcessingStatus progress={progress} />}

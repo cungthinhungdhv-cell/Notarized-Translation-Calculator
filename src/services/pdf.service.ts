@@ -7,15 +7,21 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 const MIN_TEXT_THRESHOLD = 50;
 
+// Длинная сторона рендера для OCR. Больше — медленнее и без выигрыша в качестве.
+const MAX_RENDER_DIMENSION = 2000;
+
 export interface PDFExtractionResult {
   pages: PageResult[];
   pagesNeedingOCR: { pageNumber: number; imageData: ImageData }[];
 }
 
 async function renderPageToImage(
-  page: pdfjsLib.PDFPageProxy,
-  scale: number = 2
+  page: pdfjsLib.PDFPageProxy
 ): Promise<ImageData> {
+  // Целимся в scale=2, но не даём длинной стороне превысить MAX_RENDER_DIMENSION,
+  // иначе сканы дают огромные кадры (медленный OCR + мусор в распознавании).
+  const base = page.getViewport({ scale: 1 });
+  const scale = Math.min(2, MAX_RENDER_DIMENSION / Math.max(base.width, base.height));
   const viewport = page.getViewport({ scale });
   const canvas = document.createElement('canvas');
   const context = canvas.getContext('2d')!;

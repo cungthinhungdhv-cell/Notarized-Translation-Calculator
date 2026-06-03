@@ -29,3 +29,6 @@ ocr-test/
 
 # Secrets
 Токен пуша.txt
+
+backend/__pycache__/
+*.pyc
