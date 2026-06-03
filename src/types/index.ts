@@ -2,6 +2,10 @@ export interface PricingConfig {
   minOrderPrice: number;
   pricePerCharacter: number;
   countSpaces: boolean;
+  // Доп. нотариальная копия перевода (первая включена в стоимость перевода)
+  notaryCopyTranslation: number;
+  // Нотариальная копия паспорта
+  notaryCopyPassport: number;
 }
 
 export interface OCRConfig {
