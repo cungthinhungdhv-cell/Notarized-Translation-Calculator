@@ -3,10 +3,10 @@
 
 pricing:
   # Минимальная цена за заказ
-  minOrderPrice: 580000
+  minOrderPrice: 2000000
 
   # Цена за один символ текста
-  pricePerCharacter: 600
+  pricePerCharacter: 800
 
   # Считать ли пробелы как символы
   countSpaces: false

@@ -3,8 +3,8 @@ import type { AppConfig } from '../types';
 
 const DEFAULT_CONFIG: AppConfig = {
   pricing: {
-    minOrderPrice: 580000,
-    pricePerCharacter: 500,
+    minOrderPrice: 2000000,
+    pricePerCharacter: 800,
     countSpaces: false,
     notaryCopyTranslation: 50000,
     notaryCopyPassport: 50000,
