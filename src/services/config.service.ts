@@ -24,7 +24,8 @@ const DEFAULT_CONFIG: AppConfig = {
 
 export async function loadConfig(): Promise<AppConfig> {
   try {
-    const response = await fetch('/config/pricing.yaml');
+    // no-cache: браузер ревалидирует файл, чтобы свежие цены подхватывались сразу
+    const response = await fetch('/config/pricing.yaml', { cache: 'no-cache' });
     if (!response.ok) {
       console.warn('Failed to load config, using defaults');
       return DEFAULT_CONFIG;
