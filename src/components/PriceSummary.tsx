@@ -157,7 +157,7 @@ export function PriceSummary({ results, config, onReset }: PriceSummaryProps) {
           label="Нотариальные копии перевода"
           hint="1-я копия включена в стоимость"
           unitPrice={config.pricing.notaryCopyTranslation}
-          unitSuffix="страницу"
+          unitSuffix="страница"
           multiplier={totalPages}
           count={translationCopies}
           minCount={1}
@@ -168,7 +168,7 @@ export function PriceSummary({ results, config, onReset }: PriceSummaryProps) {
         <CounterRow
           label="Нотариальные копии паспорта"
           unitPrice={config.pricing.notaryCopyPassport}
-          unitSuffix="страницу"
+          unitSuffix="страница"
           multiplier={totalPages}
           count={passportCopies}
           onChange={setPassportCopies}
